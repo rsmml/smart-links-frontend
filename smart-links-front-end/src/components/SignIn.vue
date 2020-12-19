@@ -40,7 +40,7 @@
         </div>
         <div class="form-group">
           <label for="password-confirmation">Password Confirmation</label>
-          <input type="password" v-model="password_confirmation" class="form-control" id="password" placeholder="Password">
+          <input type="password" v-model="password_confirmation" class="form-control" id="password_confirmation" placeholder="Password">
         </div>
         <button type="submit" class="btn btn-dark">Register</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">Alredy registered? Look left </small>
@@ -82,31 +82,50 @@ export default {
     this.checkSignedIn()
   },
   methods: {
+    checkSignedIn () {
+      if (localStorage.signedIn) {
+        this.$router.replace('/')
+      }
+    },
+
+    // Sign-In
     signin () {
       this.$http.plain.post('/sessions', { email: this.email, password: this.password })
-        .then(response => this.siginSuccesful(response))
+        .then(response => this.signinSuccesful(response))
         .catch(error => this.signinFailed(error))
     },
-    signup () {
-      this.$http.plain.post('/registrations', { email: this.email, password: this.password, password_confirmation: this.password_confirmation })
-        .then(response => this.sigupSuccesful(response))
-        .catch(error => this.signupFailed(error))
-    },
-    siginSuccesful (response) {
-      if (!response.data.csrf) {
-        this.signinFailed(response)
-        return
-      }
+    signinSuccesful (response) {
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
       this.error = ''
-      this.$router.replace('records')
+      this.$router.replace('/')
     },
+    signinFailed (error) {
+      this.error = (error.response && error.response.data && error.response.data.error) || 'Unexpected Error'
+      delete localStorage.csrf
+      delete localStorage.signedIn
+    },
+
+    // Sign-Up
+    signup () {
+      this.$http.plain.post('/registrations', { email: this.email, password: this.password, password_confirmation: this.password_confirmation })
+        .then(response => this.signupSuccessful(response))
+        .catch(error => this.signupFailed(error))
+    },
+    signupSuccessful (response) {
+      localStorage.csrf = response.data.csrf
+      localStorage.signedIn = true
+      this.$router.replace('/generator')
+    },
+    signupFailed (error) {
+      this.error = (error.response && error.response.data && error.response.data.error) || 'Oops...'
+      delete localStorage.csrf
+      delete localStorage.signedIn
+    }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .container {
     position: relative;
