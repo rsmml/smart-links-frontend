@@ -9,19 +9,19 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <router-link to="/" class="">Smart Links</router-link>
+        <li class="nav-item">
+          <router-link to="/" class="nav-link">Smart Links</router-link>
         </li>
-          <router-link to="/generator" class="" v-if="signedIn()">Create Smart Links</router-link>
+          <router-link to="/generator" class="nav-link" v-if="signedIn()">Create Smart Links</router-link>
         <li class="nav-item">
         </li>
       </ul>
     </div>
 
     <div>
-      <router-link to="/signin" class="" v-if="!signedIn()">Sign In</router-link>
-      <router-link to="/signin" class="" v-if="!signedIn()">Sign Up</router-link>
-      <a href="/" @click.prevent="signOut" class="" v-if="signedIn()">Sign Out</a>
+      <router-link to="/signin" class="nav-link" v-if="!signedIn()">Sign In</router-link>
+      <router-link to="/signin" class="nav-link" v-if="!signedIn()">Sign Up</router-link>
+      <button @click.prevent="logOut" to="/" class="btn nav-link" v-if="signedIn()">Log Out</button>
     </div>
 
     </div>
@@ -29,6 +29,7 @@
 </template>
 
 <script >
+import axios from 'axios'
 export default {
   name: 'NavBar',
   created () {
@@ -41,11 +42,9 @@ export default {
     signedIn () {
       return localStorage.signedIn
     },
-    signOut () {
-      this.$http.secured.delete('/signin')
+    logOut () {
+      axios.delete('http://localhost:3000/api/v1/destroy')
         .then(response => {
-          delete localStorage.csrf
-          delete localStorage.signedIn
           this.$router.replace('/')
         })
         .catch(error => this.setError(error, 'Cannot sign out'))
