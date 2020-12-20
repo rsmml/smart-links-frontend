@@ -30,17 +30,21 @@
       <!-- Forms -->
       <!-- Registration Form -->
       <form class="sign-up py-3" @submit.prevent="signup">
-        <div class="form-group">
-          <label for="email">Email address</label>
-          <input type="email" v-model="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@example.com">
+        <div class="form-group text-left">
+          <label for="email">Email address*</label>
+          <input @blur="checkUniqueness" type="email" v-model="$v.email.$model" :class="{ 'is-invalid': validationStatus($v.email) }" class="form-control" id="email" aria-describedby="emailHelp" placeholder="example@example.com">
+          <div v-if="!$v.email.required" class="invalid-feedback">E-mail is required.</div>
+          <small v-if="unique === false" class="text-danger">E-mail must be unique.</small>
         </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" v-model="password" class="form-control" id="password" placeholder="Password">
+        <div class="form-group text-left">
+          <label for="password">Password*</label>
+          <input type="password" v-model="$v.password.$model" :class="{ 'is-invalid': validationStatus($v.password) }" class="form-control" id="password" placeholder="Password">
+          <div v-if="!$v.password.minLength" class="invalid-feedback">Password must have at least 6 letters.</div>
         </div>
-        <div class="form-group">
-          <label for="password-confirmation">Password Confirmation</label>
-          <input type="password" v-model="password_confirmation" class="form-control" id="password_confirmation" placeholder="Password">
+        <div class="form-group text-left">
+          <label for="password-confirmation">Password Confirmation*</label>
+          <input type="password" v-model="$v.password_confirmation.$model" :class="{ 'is-invalid': validationStatus($v.password_confirmation) }" class="form-control" id="password_confirmation" placeholder="Password">
+          <div v-if="!$v.password.sameAsPassword" class="invalid-feedback">Passwords must be identical..</div>
         </div>
         <button type="submit" class="btn btn-dark">Register</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">Alredy registered? Look left </small>
@@ -48,13 +52,14 @@
 
       <!-- SignIn Form -->
       <form class="sign-in py-5" @submit.prevent="signin">
-        <div class="form-group">
+        <div class="form-group text-left">
           <label for="email">Email address</label>
           <input type="email" v-model="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
         </div>
-        <div class="form-group">
+        <div class="form-group text-left">
           <label for="password">Password</label>
           <input type="password" v-model="password" class="form-control" id="password" placeholder="Password">
+           <!-- <small id="emailHelp" class="form-text text-muted m-0 align-middle">*Never reveal your password</small> -->
         </div>
         <button type="submit" class="btn btn-dark" @click="refreshNavBar()">Sign-In</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">New Here? Watch over there -> </small>
@@ -64,7 +69,9 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { busEvent } from '../main'
+import { required, minLength, sameAs } from 'vuelidate/lib/validators'
 export default {
   name: 'SignIn',
   data () {
@@ -73,7 +80,18 @@ export default {
       email: '',
       password: '',
       password_confirmation: '',
-      error: ''
+      error: '',
+      unique: true
+    }
+  },
+  // Validations
+  validations: {
+    email: { required },
+    password: {
+      minLength: minLength(6)
+    },
+    password_confirmation: {
+      sameAsPassword: sameAs('password')
     }
   },
   created () {
@@ -82,6 +100,7 @@ export default {
   updated () {
     this.checkSignedIn()
   },
+  // METHODS
   methods: {
     checkSignedIn () {
       if (localStorage.signedIn) {
@@ -112,7 +131,25 @@ export default {
     },
 
     // Sign-Up
+    validationStatus (validation) {
+      return validation !== 'undefined' ? validation.$error : false
+    },
+    checkUniqueness () {
+      axios.get('http://localhost:3000/api/v1/check_user')
+        .then(res => {
+          let arr = res.data.users
+          let obj = arr.find(x => x.email === this.email)
+          if (obj) {
+            this.unique = false
+          } else {
+            this.unique = true
+          }
+        })
+    },
+
     signup () {
+      this.$v.$touch()
+      if (this.$v.$pendding || this.$v.$error) return
       this.$http.plain.post('/registrations', { email: this.email, password: this.password, password_confirmation: this.password_confirmation })
         .then(response => this.signupSuccessful(response))
         .catch(error => this.signupFailed(error))
