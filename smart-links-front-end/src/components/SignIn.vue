@@ -44,7 +44,7 @@
         <div class="form-group text-left">
           <label for="password-confirmation">Password Confirmation*</label>
           <input type="password" v-model="$v.password_confirmation.$model" :class="{ 'is-invalid': validationStatus($v.password_confirmation) }" class="form-control" id="password_confirmation" placeholder="Password">
-          <div v-if="!$v.password.sameAsPassword" class="invalid-feedback">Passwords must be identical..</div>
+          <div v-if="!$v.password.sameAsPassword" class="invalid-feedback">Passwords must be identical.</div>
         </div>
         <button type="submit" class="btn btn-dark">Register</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">Alredy registered? Look left </small>
@@ -54,14 +54,16 @@
       <form class="sign-in py-5" @submit.prevent="signin">
         <div class="form-group text-left">
           <label for="email">Email address</label>
-          <input type="email" v-model="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+          <input @blur="dublicated" type="email" v-model="$v.email.$model" :class="{ 'is-invalid': validationStatus($v.email) }" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+          <div v-if="!$v.email.required" class="invalid-feedback">E-mail is required.</div>
+          <small v-if="exist === true" class="text-danger">Please register first</small>
         </div>
         <div class="form-group text-left">
           <label for="password">Password</label>
-          <input type="password" v-model="password" class="form-control" id="password" placeholder="Password">
-           <!-- <small id="emailHelp" class="form-text text-muted m-0 align-middle">*Never reveal your password</small> -->
+          <input type="password" v-model="$v.password.$model" :class="{ 'is-invalid': validationStatus($v.password) }" class="form-control" id="password" placeholder="Password">
+          <div v-if="!$v.password.required" class="invalid-feedback">Passwords must be valid.</div>
         </div>
-        <button type="submit" class="btn btn-dark" @click="refreshNavBar()">Sign-In</button>
+        <button type="submit" class="btn btn-dark">Sign-In</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">New Here? Watch over there -> </small>
       </form>
     </div>
@@ -70,7 +72,7 @@
 
 <script>
 import axios from 'axios'
-import { busEvent } from '../main'
+import { bus } from '../main'
 import { required, minLength, sameAs } from 'vuelidate/lib/validators'
 export default {
   name: 'SignIn',
@@ -81,14 +83,16 @@ export default {
       password: '',
       password_confirmation: '',
       error: '',
-      unique: true
+      unique: true,
+      exist: false
     }
   },
   // Validations
   validations: {
     email: { required },
     password: {
-      minLength: minLength(6)
+      minLength: minLength(6),
+      required
     },
     password_confirmation: {
       sameAsPassword: sameAs('password')
@@ -110,26 +114,42 @@ export default {
 
     // Sign-In
     signin () {
-      this.$http.plain.post('/sessions', { email: this.email, password: this.password })
-        .then(response => this.signinSuccesful(response))
-        .catch(error => this.signinFailed(error))
+      if (this.password === '' || this.email === '') {
+        this.$v.$touch()
+        if (this.$v.$pendding || this.$v.$error) return
+      } else {
+        this.$http.plain.post('/sessions', { email: this.email, password: this.password })
+          .then(response => this.signinSuccesful(response))
+          .catch(error => this.signinFailed(error))
+      }
+    },
+    dublicated () {
+      axios.get('http://localhost:3000/api/v1/check_user')
+        .then(res => {
+          let arr = res.data.users
+          let obj = arr.find(x => x.email === this.email)
+          if (obj) {
+            this.exist = false
+          } else {
+            this.exist = true
+          }
+        })
     },
     signinSuccesful (response) {
+      if (!response.data.csrf) {
+        this.signinFailed(response)
+      }
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
-      this.$router.replace('/')
+      bus.$emit('signed_in', 1)
       this.error = ''
-      this.$router.go(0)
+      this.$router.replace('/')
     },
     signinFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || 'Unexpected Error'
       delete localStorage.csrf
       delete localStorage.signedIn
     },
-    refreshNavBar () {
-      busEvent.$emit('NavBar')
-    },
-
     // Sign-Up
     validationStatus (validation) {
       return validation !== 'undefined' ? validation.$error : false
@@ -148,19 +168,23 @@ export default {
     },
 
     signup () {
-      this.$v.$touch()
-      if (this.$v.$pendding || this.$v.$error) return
       this.$http.plain.post('/registrations', { email: this.email, password: this.password, password_confirmation: this.password_confirmation })
         .then(response => this.signupSuccessful(response))
         .catch(error => this.signupFailed(error))
     },
     signupSuccessful (response) {
+      if (!response.data.csrf) {
+        this.signupFailed(response)
+      }
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
-      this.$router.replace('/generator')
-      this.$router.go(0)
+      bus.$emit('signed_up', 1)
+      this.error = ''
+      this.$router.replace('/')
     },
     signupFailed (error) {
+      this.$v.$touch()
+      if (this.$v.$pendding || this.$v.$error) return
       this.error = (error.response && error.response.data && error.response.data.error) || 'Oops...'
       delete localStorage.csrf
       delete localStorage.signedIn

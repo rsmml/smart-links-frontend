@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" :key="componentKey">
     <div class="container">
     <img src="../assets/logo.png" class="mr-5">
     <router-link to="/" class="navbar-brand">Smart Links Generator</router-link>
@@ -28,7 +28,7 @@
 </template>
 
 <script >
-import { busEvent } from '../main'
+import { bus } from '../main'
 import axios from 'axios'
 
 export default {
@@ -40,8 +40,11 @@ export default {
   },
   created () {
     this.signedIn()
-    busEvent.$on('NavBar', () => {
-      this.componentKey += 1
+    bus.$on('signed_in', (data) => {
+      this.componentKey = data + 1
+    })
+    bus.$on('signed_up', (data) => {
+      this.componentKey = data + 1
     })
   },
   methods: {

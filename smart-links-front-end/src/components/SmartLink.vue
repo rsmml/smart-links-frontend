@@ -18,16 +18,16 @@ export default {
       error: '',
       editedSmartLink: ''
     }
-  },
-  created () {
-    if (!localStorage.signedIn) {
-      this.$router.replace('/')
-    } else {
-      this.$http.secured.get('/api/v1/smart_links')
-        .then(response => { this.smartLinks = response.data })
-        .catch(error => this.setError(error, 'Something went wrong'))
-    }
   }
+  // created () {
+  //   if (!localStorage.signedIn) {
+  //     this.$router.replace('/')
+  //   } else {
+  //     this.$http.secured.get('http://localhost:3000/api/v1/smart_links')
+  //       .then(response => { this.smartLinks = response.data })
+  //       .catch(error => this.setError(error, 'Something went wrong'))
+  //   }
+  // }
 }
 
 </script>

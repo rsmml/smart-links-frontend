@@ -11,7 +11,7 @@ import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
 Vue.config.productionTip = false
 Vue.use(Vuelidate)
 
-export const busEvent = new Vue()
+export const bus = new Vue()
 
 Vue.use(VueAxios, {
   secured: securedAxiosInstance,
