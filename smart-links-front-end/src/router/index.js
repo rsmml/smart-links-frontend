@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import SignIn from '@/components/SignIn'
-import Home from '@/components/Home'
-import SmartLinkGenerator from '@/components/SmartLinkGenerator'
+import Generator from '@/components/Generator'
+import SmartLink from '@/components/SmartLink'
 
 Vue.use(Router)
 
@@ -17,13 +17,19 @@ export default new Router({
     },
     {
       path: '/',
-      name: 'Home',
-      component: Home
+      name: 'SmartLink',
+      component: SmartLink
     },
     {
       path: '/generator',
-      name: 'SmartLinkGenerator',
-      component: SmartLinkGenerator
+      name: 'Generator',
+      get component () {
+        if (localStorage.signedIn) {
+          return Generator
+        } else {
+          return SignIn
+        }
+      }
     }
   ]
 })
