@@ -18,9 +18,8 @@
       </ul>
     </div>
 
-    <div>
-      <router-link to="/signin" class="nav-link" v-if="!signedIn()">Sign In</router-link>
-      <router-link to="/signin" class="nav-link" v-if="!signedIn()">Sign Up</router-link>
+    <div :key="componentKey" class="d-flex">
+      <router-link to="/signin" class="nav-link btn nav-link" v-if="!signedIn()">Sign In</router-link>
       <button @click.prevent="logOut" to="/" class="btn nav-link" v-if="signedIn()">Log Out</button>
     </div>
 
@@ -29,23 +28,39 @@
 </template>
 
 <script >
+import { busEvent } from '../main'
 import axios from 'axios'
+
 export default {
   name: 'NavBar',
+  data () {
+    return {
+      componentKey: 0
+    }
+  },
   created () {
     this.signedIn()
+    busEvent.$on('NavBar', () => {
+      this.componentKey += 1
+    })
   },
   methods: {
     setError (error, text) {
       this.error = (error.response && error.response.data && error.response.data.error) || text
     },
+    forceRerender () {
+      this.componentKey += 1
+    },
     signedIn () {
       return localStorage.signedIn
     },
     logOut () {
-      axios.delete('http://localhost:3000/api/v1/destroy')
+      axios.delete('http://localhost:3000/api/v1/logout')
         .then(response => {
+          delete localStorage.csrf
+          delete localStorage.signedIn
           this.$router.replace('/')
+          this.$forceUpdate()
         })
         .catch(error => this.setError(error, 'Cannot sign out'))
     }

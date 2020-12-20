@@ -56,7 +56,7 @@
           <label for="password">Password</label>
           <input type="password" v-model="password" class="form-control" id="password" placeholder="Password">
         </div>
-        <button type="submit" class="btn btn-dark">Sign-In</button>
+        <button type="submit" class="btn btn-dark" @click="refreshNavBar()">Sign-In</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">New Here? Watch over there -> </small>
       </form>
     </div>
@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import { busEvent } from '../main'
 export default {
   name: 'SignIn',
   data () {
@@ -97,13 +98,17 @@ export default {
     signinSuccesful (response) {
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
-      this.error = ''
       this.$router.replace('/')
+      this.error = ''
+      this.$router.go(0)
     },
     signinFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || 'Unexpected Error'
       delete localStorage.csrf
       delete localStorage.signedIn
+    },
+    refreshNavBar () {
+      busEvent.$emit('NavBar')
     },
 
     // Sign-Up
@@ -116,6 +121,7 @@ export default {
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
       this.$router.replace('/generator')
+      this.$router.go(0)
     },
     signupFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || 'Oops...'
