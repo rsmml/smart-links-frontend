@@ -208,10 +208,10 @@ export default {
   }
   small.text-danger {
     position: absolute;
-    margin-top: 20px;
   }
   div.invalid-feedback {
     position: absolute;
+    margin-top: 20px;
   }
 
   .container {

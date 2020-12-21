@@ -30,6 +30,11 @@ export default new Router({
           return SignIn
         }
       }
+    },
+    {
+      path: '*',
+      name: 'PageNotFound',
+      component: SmartLink
     }
   ]
 })
