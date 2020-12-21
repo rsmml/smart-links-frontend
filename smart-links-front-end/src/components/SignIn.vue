@@ -62,6 +62,7 @@
           <label for="password">Password</label>
           <input type="password" v-model="$v.password.$model" :class="{ 'is-invalid': validationStatus($v.password) }" class="form-control" id="password" placeholder="Password">
           <div v-if="!$v.password.required" class="invalid-feedback">Passwords must be valid.</div>
+          <small v-if="wrongPass === true" class="text-danger">Invalid Password or E-mail</small>
         </div>
         <button type="submit" class="btn btn-dark">Sign-In</button>
         <small id="emailHelp" class="form-text text-muted m-0 align-middle">New Here? Watch over there -> </small>
@@ -84,7 +85,8 @@ export default {
       password_confirmation: '',
       error: '',
       unique: true,
-      exist: false
+      exist: false,
+      wrongPass: false
     }
   },
   // Validations
@@ -130,6 +132,13 @@ export default {
           }
         })
     },
+    checkPass (res) {
+      if (res.data.status !== 'created') {
+        this.wrongPass = true
+      } else {
+        this.wrongPass = false
+      }
+    },
     signinSuccesful (response) {
       if (response.data.status === 'created') {
         localStorage.csrf = response.data.csrf
@@ -138,10 +147,13 @@ export default {
         this.error = ''
         this.$router.replace('/')
       } else {
+        this.checkPass(response)
         this.signinFailed(response)
       }
     },
     signinFailed (error) {
+      this.$v.$touch()
+      if (this.$v.$pendding || this.$v.$error) return
       this.error = (error.response && error.response.data && error.response.data.error) || 'Unexpected Error'
       delete localStorage.csrf
       delete localStorage.signedIn
@@ -175,8 +187,7 @@ export default {
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
       bus.$emit('signed_up', false)
-      // this.error = ''
-      // this.$router.replace('/')
+      this.error = ''
     },
     signupFailed (error) {
       this.$v.$touch()
@@ -305,9 +316,3 @@ export default {
   }
 
 </style>
-
-<!--  -->
-<!--
-this.$v.$touch()
-        if (this.$v.$pendding || this.$v.$error) {
-        } -->
