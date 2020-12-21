@@ -114,14 +114,9 @@ export default {
 
     // Sign-In
     signin () {
-      if (this.password === '' || this.email === '') {
-        this.$v.$touch()
-        if (this.$v.$pendding || this.$v.$error) return
-      } else {
-        this.$http.plain.post('/sessions', { email: this.email, password: this.password })
-          .then(response => this.signinSuccesful(response))
-          .catch(error => this.signinFailed(error))
-      }
+      this.$http.plain.post('/sessions', { email: this.email, password: this.password })
+        .then(response => this.signinSuccesful(response))
+        .catch(error => this.signinFailed(error))
     },
     dublicated () {
       axios.get('http://localhost:3000/api/v1/check_user')
@@ -136,14 +131,15 @@ export default {
         })
     },
     signinSuccesful (response) {
-      if (!response.data.csrf) {
+      if (response.data.status === 'created') {
+        localStorage.csrf = response.data.csrf
+        localStorage.signedIn = true
+        bus.$emit('signed_in', false)
+        this.error = ''
+        this.$router.replace('/')
+      } else {
         this.signinFailed(response)
       }
-      localStorage.csrf = response.data.csrf
-      localStorage.signedIn = true
-      bus.$emit('signed_in', 1)
-      this.error = ''
-      this.$router.replace('/')
     },
     signinFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || 'Unexpected Error'
@@ -178,9 +174,9 @@ export default {
       }
       localStorage.csrf = response.data.csrf
       localStorage.signedIn = true
-      bus.$emit('signed_up', 1)
-      this.error = ''
-      this.$router.replace('/')
+      bus.$emit('signed_up', false)
+      // this.error = ''
+      // this.$router.replace('/')
     },
     signupFailed (error) {
       this.$v.$touch()
@@ -309,3 +305,9 @@ export default {
   }
 
 </style>
+
+<!--  -->
+<!--
+this.$v.$touch()
+        if (this.$v.$pendding || this.$v.$error) {
+        } -->

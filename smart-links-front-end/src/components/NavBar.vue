@@ -35,16 +35,16 @@ export default {
   name: 'NavBar',
   data () {
     return {
-      componentKey: 0
+      componentKey: false
     }
   },
   created () {
     this.signedIn()
     bus.$on('signed_in', (data) => {
-      this.componentKey = data + 1
+      this.componentKey = !data
     })
     bus.$on('signed_up', (data) => {
-      this.componentKey = data + 1
+      this.componentKey = !data
     })
   },
   methods: {
@@ -60,6 +60,7 @@ export default {
     logOut () {
       axios.delete('http://localhost:3000/api/v1/logout')
         .then(response => {
+          this.componentKey = false
           delete localStorage.csrf
           delete localStorage.signedIn
           this.$router.replace('/')
