@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin-top: 60px;">
     <div class="container px-0" :class="{'sign-up-active' : signUp}">
       <div class="overlay-container p-0">
         <div class="row overlay mx-0">
@@ -208,6 +208,7 @@ export default {
   }
   small.text-danger {
     position: absolute;
+    margin-top: 20px;
   }
   div.invalid-feedback {
     position: absolute;
