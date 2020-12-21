@@ -181,13 +181,15 @@ export default {
         .catch(error => this.signupFailed(error))
     },
     signupSuccessful (response) {
-      if (!response.data.csrf) {
+      if (response.data.status === 'created') {
+        localStorage.csrf = response.data.csrf
+        localStorage.signedIn = true
+        bus.$emit('signed_up', false)
+        this.$router.replace('/')
+        this.error = ''
+      } else {
         this.signupFailed(response)
       }
-      localStorage.csrf = response.data.csrf
-      localStorage.signedIn = true
-      bus.$emit('signed_up', false)
-      this.error = ''
     },
     signupFailed (error) {
       this.$v.$touch()
@@ -201,6 +203,16 @@ export default {
 </script>
 
 <style scoped>
+  input {
+    padding-right: 0 !important;
+  }
+  small.text-danger {
+    position: absolute;
+  }
+  div.invalid-feedback {
+    position: absolute;
+  }
+
   .container {
     position: relative;
     width: 768px;
