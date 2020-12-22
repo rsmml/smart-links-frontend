@@ -8,7 +8,7 @@
             <p class="link-url">{{ link.url }}</p>
           </div>
           <div class="text-right mr-3">
-            <p class="mb-2 link-data">{{ link.minutes }}</p>
+            <p class="mb-2 link-data">{{ link.created_at }}</p>
             <p class="link-data">by {{ link.user_email }}</p>
           </div>
         </div>
