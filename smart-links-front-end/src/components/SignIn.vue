@@ -144,6 +144,7 @@ export default {
         localStorage.csrf = response.data.csrf
         localStorage.signedIn = true
         bus.$emit('signed_in', false)
+        this.getUserId()
         this.error = ''
         this.$router.replace('/')
       } else {
@@ -174,6 +175,16 @@ export default {
           }
         })
     },
+    getUserId () {
+      axios.get('http://localhost:3000/api/v1/check_user')
+        .then(response => {
+          let arr = response.data.users
+          let obj = arr.find(x => x.email === this.email)
+          if (obj) {
+            localStorage.setItem('id', obj.id)
+          }
+        })
+    },
 
     signup () {
       this.$http.plain.post('/registrations', { email: this.email, password: this.password, password_confirmation: this.password_confirmation })
@@ -187,6 +198,7 @@ export default {
         bus.$emit('signed_up', false)
         this.$router.replace('/')
         this.error = ''
+        this.getUserId()
       } else {
         this.signupFailed(response)
       }
