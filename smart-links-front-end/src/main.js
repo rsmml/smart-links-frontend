@@ -7,6 +7,7 @@ import App from './App'
 import VueAxios from 'vue-axios'
 import router from './router'
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
+import { store } from './store/store'
 
 Vue.config.productionTip = false
 Vue.use(Vuelidate)
@@ -20,6 +21,7 @@ Vue.use(VueAxios, {
 
 /* eslint-disable no-new */
 new Vue({
+  store: store,
   el: '#app',
   router,
   securedAxiosInstance,

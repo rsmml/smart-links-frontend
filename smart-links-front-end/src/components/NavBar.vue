@@ -12,8 +12,11 @@
         <li class="nav-item">
           <router-link to="/" class="nav-link">Smart Links</router-link>
         </li>
-          <router-link to="/generator" class="nav-link" v-if="signedIn()">Create Smart Links</router-link>
         <li class="nav-item">
+          <router-link to="/generator" class="nav-link" v-if="signedIn()">Create Smart Links</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link to="/mylinks" class="nav-link" v-if="signedIn()">My Smart Links</router-link>
         </li>
       </ul>
     </div>
