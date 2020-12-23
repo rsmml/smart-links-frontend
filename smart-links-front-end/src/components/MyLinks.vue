@@ -4,9 +4,9 @@
       <h1>My Smart Links</h1>
     </div>
     <ul class="p-4">
-      <li v-for="link in links" v-bind:key="link.id" :link="link" class="my-3">
+      <li v-for="link in links" v-bind:key="link.updated_at" :link="link" class="my-3">
         <div class=" d-flex justify-content-between align-items-center">
-          <div v-if="link.user_email === email" class="list-link d-flex justify-content-between align-items-center p-2">
+          <div v-if="link.user_email === email" :key="editedLink" class="list-link d-flex justify-content-between align-items-center p-2">
             <div class="text-left ml-3">
               <p class="mb-2 link-name">{{ link.name }}</p>
               <p class="link-url">{{ link.url }}</p>
@@ -22,19 +22,21 @@
           </div>
         </div>
 
-        <div v-if="link.user_email === email">
+        <div v-if="link.user_email === email" class="w-50">
           <div v-if="link == editedLink">
-            <form action="" @submit.prevent="updateSmartLink(link)">
-              <div>
-                <label for="text" class="my-3">Name</label>
-                <input type="text" v-model="newlink.name" :placeholder="link.name">
+            <form action="" @submit.prevent="updateSmartLink(link)" class="w-100 text-left">
+              <div class="my-3 form-group">
+                <label for="text" class="mr-3">Name</label>
+                <input class="form-control" type="text" v-model="newlink.name" :placeholder="link.name">
               </div>
-              <div>
-                <label for="">New Url</label>
-                <input type="text" v-model="newlink.url" :placeholder="link.url">
+              <div class="form-group">
+                <label for="">URL</label>
+                <input class="form-control" type="text" v-model="newlink.url" :placeholder="link.url">
               </div>
-              <button type="submit" class="btn btn-dark">Update Smart Link</button>
-              <button type="submit" @click.prevent="editSmartLink(null)" class="btn btn-warning">Cancel</button>
+              <div class="w-80 d-flex align-items-center justify-content-between">
+                <button type="submit" class="btn btn-dark my-3 mr-3">Update Smart Link</button>
+                <button type="submit" @click.prevent="editSmartLink(null)" class="btn btn-warning">Cancel</button>
+              </div>
             </form>
           </div>
         </div>
@@ -82,9 +84,17 @@ export default {
       this.editedLink = link
     },
     updateSmartLink (link) {
-      this.editedLink = ''
       axios.patch(`http://localhost:3000/api/v1/smart_links/${link.id}`, { name: this.newlink.name, url: this.newlink.url })
+        .then(response => this.edited(response))
         .catch(error => this.setError(error, 'Cannot update link'))
+    },
+    edited (response) {
+      if (response.data.status === 401) {
+        this.$alert('We cannot edit your smart link at the moment', 'Something went wrong...', 'warning')
+      } else {
+        this.$alert('Lets do more smart links', 'Smart Link Edited!', 'success')
+        this.editedLink = null
+      }
     }
   }
 }
