@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Vuelidate from 'vuelidate'
+import VueSimpleAlert from 'vue-simple-alert'
 import 'bootstrap'; import 'bootstrap/dist/css/bootstrap.min.css'
 import App from './App'
 import VueAxios from 'vue-axios'
@@ -11,6 +12,7 @@ import { store } from './store/store'
 
 Vue.config.productionTip = false
 Vue.use(Vuelidate)
+Vue.use(VueSimpleAlert)
 
 export const bus = new Vue()
 

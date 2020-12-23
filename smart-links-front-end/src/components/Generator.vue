@@ -92,8 +92,16 @@ export default {
     },
     addSmartLink () {
       axios.post('http://localhost:3000/api/v1/smart_links', { name: this.name, url: this.url, user_id: this.userId })
-        .then(response => this.signinSuccesful(console.log(response)))
-        .catch(error => this.signinFailed(error))
+        .then(response => this.created(response))
+        .catch(error => this.failed(error))
+    },
+    created (response) {
+      if (response.data.smart_link.id) {
+        console.log(response)
+        this.$alert('Lets do more smart links', 'Smart Link Created!', 'success')
+      } else {
+        this.$alert('We cannot add your smart link at the moment', 'Something went wrong...', 'error')
+      }
     },
     validationStatus (validation) {
       return validation !== 'undefined' ? validation.$error : false
