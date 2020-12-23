@@ -8,50 +8,57 @@
         <p>No need to answer any question, just create as many smart links as you like.</p>
       </div>
       <div class="w-100">
-        <form class="container create-smart-link py-5 d-flex justify-content-around">
-
-          <div class="w-50 p-3 text-left">
-            <div class="pl-3">
-              <h3>Time to create some <strong>Smart Links</strong> 🎉</h3>
-              <p>In order to create a <strong>smart link</strong> please provide some information such as a custom name and a real url:</p>
-            </div>
-            <hr>
-            <div class="form-group">
-              <label for="text" class="my-3">Name</label>
-              <input @blur="validationStatus($v.name)" v-model='$v.name.$model' :class="{ 'is-invalid': validationStatus($v.name) }" class="form-control" id="name" aria-describedby="emailHelp" placeholder="Panda">
-              <div v-if="!$v.name.required" class="invalid-feedback">Name is required.</div>
-              <small v-if="validationStatus($v.name) === false" class="text-success">Please provide a name</small>
-            </div>
-            <div class="form-group">
-              <label for="url" class="my-3">Url</label>
-              <input @blur="validationStatus($v.url)" v-model='$v.url.$model' :class="{ 'is-invalid': validationStatus($v.url) }" class="form-control" id="url" placeholder="http://www.exaple.com/en/panda">
-              <div v-if="!$v.url.required" class="invalid-feedback">URL is required.</div>
-              <small v-if="validationStatus($v.url) === false" class="text-success">Please provide an url</small>
-            </div>
-            <button  @click.prevent="addSmartLink" type="submit" class="btn btn-dark w-100 mt-5">Create Smart Link</button>
-          </div>
-
-          <div class="w-50 p-3 language-rules">
-            <div class="text-left">
-              <h3>Language Rules 🇪🇸 🇩🇪 </h3>
-              <button class="btn btn-success btn-sm mr-3" @click.prevent="rules.push({rule_name: ' ', rule_url: ' '})">+</button>
-              <button class="btn btn-warning btn-sm ml-3" @click.prevent="rules.pop()">-</button>
-            </div>
-            <div v-for="rule in rules" v-bind:key="rule" class="text-left mt-3">
+        <form class="container create-smart-link pt-5">
+          <div class="d-flex">
+            <div class="w-50 p-3 text-left">
+              <div class="pl-3">
+                <h3>Time to create some <strong>Smart Links</strong> 🎉</h3>
+                <p>In order to create a <strong>smart link</strong> please provide some information such as a custom name and a real url:</p>
+              </div>
+              <hr>
               <div class="form-group">
-                <label for="text">Language Name</label>
-                <select name="" id="">
-                  <option value="" class="form-control">ES</option>
-                  <option value="" class="form-control">DE</option>
-                </select>
-                <!-- <input class="form-control" v-model="rule_name" placeholder="ES"/> -->
+                <label for="text" class="my-3">Name*</label>
+                <input @blur="validationStatus($v.name)" v-model='$v.name.$model' :class="{ 'is-invalid': validationStatus($v.name) }" class="form-control" id="name" aria-describedby="emailHelp" placeholder="Panda">
+                <div v-if="!$v.name.required" class="invalid-feedback">Name is required.</div>
+                <small v-if="validationStatus($v.name) === false" class="text-success">Please provide a name</small>
               </div>
               <div class="form-group">
-                <label for="url">Url Variant</label>
-                <input class="form-control" v-model="rule_url" placeholder="http://www.exaple.com/es/panda"/>
+                <label for="url" class="my-3">Url*</label>
+                <input @blur="validationStatus($v.url)" v-model='$v.url.$model' :class="{ 'is-invalid': validationStatus($v.url) }" class="form-control" id="url" placeholder="http://www.exaple.com/en/panda">
+                <div v-if="!$v.url.required" class="invalid-feedback">URL is required.</div>
+                <small v-if="validationStatus($v.url) === false" class="text-success">Please provide an url</small>
+              </div>
+            </div>
+
+            <div class="w-50 p-3 language-rules">
+              <div class="text-left">
+                <h3>Language Rules 🇪🇸 🇩🇪 </h3>
+                <p>In order to make a <strong>smart link</strong> smart, please provide this aditional information:</p>
+              </div>
+              <div class="text-left mt-3">
+                <div class="form-group">
+                  <label for="text">1. Language Name*</label>
+                  <input class="form-control" v-model="es_name" placeholder="ES"/>
+                </div>
+                <div class="form-group">
+                  <label for="url">1. Url Variant*</label>
+                  <input class="form-control" v-model="es_url" placeholder="http://www.exaple.com/es/panda"/>
+                </div>
+              </div>
+              <div class="text-left mt-3">
+                <div class="form-group">
+                  <label for="text">2. Language Name*</label>
+                  <input class="form-control" v-model="de_name" placeholder="DE"/>
+                </div>
+                <div class="form-group">
+                  <label for="url">2. Url Variant*</label>
+                  <input class="form-control" v-model="de_url" placeholder="http://www.exaple.com/es/panda"/>
+                </div>
               </div>
             </div>
           </div>
+
+          <button  @click.prevent="addSmartLink" type="submit" class="btn btn-dark w-100 mt-5">Create Smart Link</button>
         </form>
       </div>
     </div>
@@ -68,12 +75,10 @@ export default {
       name: '',
       url: '',
       userId: '',
-      rules: [
-        {
-          rule_name: '',
-          rule_url: ''
-        }
-      ]
+      es_name: '',
+      es_url: '',
+      de_name: '',
+      de_url: ''
     }
   },
   validations: {
@@ -91,15 +96,19 @@ export default {
       return localStorage.signedIn
     },
     addSmartLink () {
-      axios.post('http://localhost:3000/api/v1/smart_links', { name: this.name, url: this.url, user_id: this.userId })
+      axios.post('http://localhost:3000/api/v1/smart_links', { name: this.name, url: this.url, user_id: this.userId, es_name: this.es_name, es_url: this.es_url, de_name: this.de_name, de_url: this.de_url })
         .then(response => this.created(response))
-        .catch(error => this.failed(error))
+        .catch(error => this.error(error))
     },
     created (response) {
-      if (response.data.smart_link.id) {
-        console.log(response)
+      if (response.data.status === 'created') {
         this.$alert('Lets do more smart links', 'Smart Link Created!', 'success')
       } else {
+        this.$alert('We cannot add your smart link at the moment', 'Something went wrong...', 'error')
+      }
+    },
+    error (error) {
+      if (error) {
         this.$alert('We cannot add your smart link at the moment', 'Something went wrong...', 'error')
       }
     },
