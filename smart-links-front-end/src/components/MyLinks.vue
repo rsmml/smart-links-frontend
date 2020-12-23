@@ -72,7 +72,7 @@ export default {
     deleteSmartLink (smartLink) {
       axios.delete(`http://localhost:3000/api/v1/smart_links/${smartLink.id}`)
         .then(response => {
-          this.links.splice(this.links.indexOf(smartLink.id), 1)
+          this.links.splice(this.links.indexOf(smartLink), 1)
         })
         .catch(error => this.setError(error, 'Cannot delete Smart Link'))
     },
