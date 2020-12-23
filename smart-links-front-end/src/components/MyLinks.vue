@@ -70,11 +70,13 @@ export default {
       return localStorage.signedIn
     },
     deleteSmartLink (smartLink) {
-      axios.delete(`http://localhost:3000/api/v1/smart_links/${smartLink.id}`)
-        .then(response => {
-          this.links.splice(this.links.indexOf(smartLink), 1)
-        })
-        .catch(error => this.setError(error, 'Cannot delete Smart Link'))
+      this.$confirm('You are about to delete a nice smart link', 'Are you sure?', 'question', 'reverse-button').then(() => {
+        axios.delete(`http://localhost:3000/api/v1/smart_links/${smartLink.id}`)
+          .then(response => {
+            this.links.splice(this.links.indexOf(smartLink), 1)
+          })
+          .catch(error => this.setError(error, 'Cannot delete Smart Link'))
+      })
     },
     editSmartLink (link) {
       this.editedLink = link
