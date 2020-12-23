@@ -2,7 +2,7 @@
   <div id="smart-links" class="container px-4">
     <ul class="p-4">
       <li v-for="link in links" v-bind:key="link" class="list-link my-3">
-        <div class="d-flex justify-content-between align-items-center p-2">
+        <div  @click.prevent="getRules(link)" class="d-flex justify-content-between align-items-center p-2">
           <div class="text-left ml-3">
             <p class="mb-2 link-name">{{ link.name }}</p>
             <p class="link-url">{{ link.url }}</p>
@@ -29,12 +29,34 @@ export default {
   methods: {
     signedIn () {
       return localStorage.signedIn
+    },
+    getRules (link) {
+      if (navigator.language === 'es' || navigator.language === 'de') {
+        axios.get(`http://localhost:3000/api/v1/smart_links/${link.id}/language_rules`)
+          .then(response => this.getLinks(response))
+          .catch(error => console.log(error))
+      } else {
+        window.open(link.url, '_blank')
+      }
+    },
+    getLinks (response) {
+      const arr = []
+      response.data.forEach((el) => {
+        arr.push(el)
+      })
+      if (navigator.language === 'es') {
+        window.open(arr[0].url, '_blank')
+      } else if (navigator.language === 'de') {
+        window.open(arr[1].url, '_blank')
+      } else {
+        console.log('EN')
+      }
     }
   },
   created () {
     axios.get('http://localhost:3000/api/v1/smart_links')
       .then(response => {
-        this.links = response.data
+        this.links = response.data.smart_links
       })
       .catch(error => console.log(error))
   }
@@ -55,6 +77,7 @@ export default {
   }
   .list-link:hover {
     transform: scale(1.02);
+    cursor: pointer;
   }
   .list-link p{
     margin:0;

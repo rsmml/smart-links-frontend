@@ -104,7 +104,7 @@ export default {
           .then(response => this.getLinks(response))
           .catch(error => console.log(error))
       } else {
-        window.location.href = link.url
+        window.open(link.url, '_blank')
       }
     },
     getLinks (response) {
@@ -113,9 +113,9 @@ export default {
         arr.push(el)
       })
       if (navigator.language === 'es') {
-        window.location.href = arr[0].url
+        window.open(arr[0].url, '_blank')
       } else if (navigator.language === 'de') {
-        window.location.href = arr[0].url
+        window.open(arr[1].url, '_blank')
       } else {
         console.log('EN')
       }
