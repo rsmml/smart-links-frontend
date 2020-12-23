@@ -182,6 +182,7 @@ export default {
           let obj = arr.find(x => x.email === this.email)
           if (obj) {
             localStorage.setItem('id', obj.id)
+            localStorage.setItem('email', obj.email)
           }
         })
     },

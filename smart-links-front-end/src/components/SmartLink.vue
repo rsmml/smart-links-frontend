@@ -8,7 +8,7 @@
             <p class="link-url">{{ link.url }}</p>
           </div>
           <div class="text-right mr-3">
-            <p class="mb-2 link-data">{{ link.created_at }}</p>
+            <p class="mb-2 link-time">{{ Math.round(Math.abs(new Date() - new Date(link.minutes))/1000/60) }} min ago.</p>
             <p class="link-data">by {{ link.user_email }}</p>
           </div>
         </div>
@@ -67,7 +67,11 @@ export default {
     font-size: 14px;
     font-weight: lighter;
   }
+  p.link-time {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6)
+  }
   p.link-data {
-
+    font-size: 18px;
   }
 </style>

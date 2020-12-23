@@ -40,7 +40,11 @@
             <div v-for="rule in rules" v-bind:key="rule" class="text-left mt-3">
               <div class="form-group">
                 <label for="text">Language Name</label>
-                <input class="form-control" v-model="rule_name" placeholder="ES"/>
+                <select name="" id="">
+                  <option value="" class="form-control">ES</option>
+                  <option value="" class="form-control">DE</option>
+                </select>
+                <!-- <input class="form-control" v-model="rule_name" placeholder="ES"/> -->
               </div>
               <div class="form-group">
                 <label for="url">Url Variant</label>
